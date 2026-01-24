@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planning Vestizioni — settimane (offline)</title>
+  <style>
+    :root {
+      --bg:#0b0e14; --card:#121826; --text:#e6eaf2; --muted:#9aa4b2; --line:#273041; --accent:#6ea8fe;
+      --ok:#2bd576; --bad:#ff6b6b;
+    }
+    @media (prefers-color-scheme: light) {
+      :root { --bg:#f6f7fb; --card:#ffffff; --text:#111827; --muted:#6b7280; --line:#e5e7eb; --accent:#2563eb; }
+    }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 16px; }
+    .bar { position: sticky; top: 0; z-index: 20; background: rgba(0,0,0,0); backdrop-filter: blur(10px); padding: 10px 0; }
+    .btns { display:flex; flex-wrap:wrap; gap:8px; }
+    button {
+      border:1px solid var(--line); background: transparent; color: var(--text);
+      padding: 8px 10px; border-radius: 12px; cursor:pointer; font-size: 13px;
+    }
+    button.primary { background: var(--accent); border-color: transparent; color:white; }
+    .card { background: var(--card); border:1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,.12); }
+    .mini { font-size: 12px; color: var(--muted); line-height:1.35; }
+    table { border-collapse: collapse; width: 100%; overflow: hidden; border-radius: 12px; border: 1px solid var(--line); }
+    th, td { border:1px solid var(--line); padding: 7px 8px; font-size: 13px; vertical-align: top; }
+    th { background: rgba(110,168,254,.12); text-align:left; }
+    .ok { color: var(--ok); }
+    .error { color: var(--bad); }
+    .row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content: space-between; }
+    .title { font-size: 14px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="bar">
+      <div class="row">
+        <div class="title">Seleziona settimana</div>
+        <div class="mini" id="status">Pronto.</div>
+      </div>
+      <div class="btns" id="weekButtons"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="mini" style="margin-bottom:8px;">
+        Planning aggiornato automaticamente quando clicchi un pulsante settimana.
+      </div>
+      <div style="overflow:auto;">
+        <table id="outTable"></table>
+      </div>
+    </div>
+  </div>
+
+<script>
+// Banner errori JS (così se qualcosa va storto lo vedi subito)
+window.addEventListener('error', (e) => {
+  const st = document.getElementById('status');
+  if (st) st.innerHTML = '<span class="error">Errore JS: ' + (e.message || 'unknown') + '</span>';
+});
+
+const MODEL = JSON.parse("{}");
+
+// ✅ OFFLINE: dati embedded (niente fetch)
+const WEEKS = [{"id": 1, "label": "Settimana 1 (4–10)", "days": [4, 5, 6, 7, 8, 9, 10], "matrix": [["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"]]}, {"id": 2, "label": "Settimana 2 (11–17)", "days": [11, 12, 13, 14, 15, 16, 17], "matrix": [["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"]]}, {"id": 3, "label": "Settimana 3 (18–24)", "days": [18, 19, 20, 21, 22, 23, 24], "matrix": [["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"]]}, {"id": 4, "label": "Settimana 4 (25–1)", "days": [25, 26, 27, 28, 29, 30, 1], "matrix": [["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"]]}, {"id": 5, "label": "Settimana 5 (2–8)", "days": [2, 3, 4, 5, 6, 7, 8], "matrix": [["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"]]}, {"id": 6, "label": "Settimana 6 (9–15)", "days": [9, 10, 11, 12, 13, 14, 15], "matrix": [["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"]]}, {"id": 7, "label": "Settimana 7 (16–22)", "days": [16, 17, 18, 19, 20, 21, 22], "matrix": [["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"]]}, {"id": 8, "label": "Settimana 8 (23–29)", "days": [23, 24, 25, 26, 27, 28, 29], "matrix": [["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"]]}, {"id": 9, "label": "Settimana 9 (30–5)", "days": [30, 31, 1, 2, 3, 4, 5], "matrix": [["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"]]}, {"id": 10, "label": "Settimana 10 (6–12)", "days": [6, 7, 8, 9, 10, 11, 12], "matrix": [["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"]]}, {"id": 11, "label": "Settimana 11 (13–19)", "days": [13, 14, 15, 16, 17, 18, 19], "matrix": [["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"]]}, {"id": 12, "label": "Settimana 12 (20–26)", "days": [20, 21, 22, 23, 24, 25, 26], "matrix": [["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"]]}, {"id": 13, "label": "Settimana 13 (27–3)", "days": [27, 28, 29, 30, 1, 2, 3], "matrix": [["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"]]}, {"id": 14, "label": "Settimana 14 (4–10)", "days": [4, 5, 6, 7, 8, 9, 10], "matrix": [["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"]]}, {"id": 15, "label": "Settimana 15 (11–17)", "days": [11, 12, 13, 14, 15, 16, 17], "matrix": [["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"]]}];
+const ASSIGNEES = (Array.isArray(null) && null && null.length === 15) ? null : (MODEL.assignees || []);
+
+let selectedWeek = 0;
+
+function norm(s) {
+  return (s ?? "").toString().trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+function currentWeek() {
+  return (WEEKS[selectedWeek]?.matrix) || Array.from({length:15}, () => Array.from({length:7}, () => ""));
+}
+
+function lookupPasted(dayIdx, code) {
+  const target = norm(code);
+  const matrix = currentWeek();
+  for (let r=0; r<15; r++) {
+    if (norm(matrix[r][dayIdx]) === target) {
+      return (ASSIGNEES[r] ?? "").toString().trim();
+    }
+  }
+  return "";
+}
+
+function lookupStatic(code) {
+  const key = (code ?? "").toString().trim();
+  return (MODEL.staticMap?.[key] ?? "");
+}
+
+function computeCell(cellSpec) {
+  if (!cellSpec || typeof cellSpec !== "object") return cellSpec ?? "";
+  const {ref, type, code} = cellSpec;
+  if (!code) return "";
+  if (type === "pasted") {
+    const col = ref.match(/^([A-Z]+)\d+$/)?.[1] ?? "";
+    const dayIdx = (MODEL.dayCols || []).indexOf(col);
+    if (dayIdx < 0) return "";
+    return lookupPasted(dayIdx, code);
+  }
+  if (type === "static") return lookupStatic(code);
+  return lookupStatic(code) || "";
+}
+
+function renderOutput() {
+  const tbl = document.getElementById("outTable");
+  tbl.innerHTML = "";
+  const tb = document.createElement("tbody");
+
+  for (const row of (MODEL.template || [])) {
+    const tr = document.createElement("tr");
+    for (const cell of row) {
+      const td = document.createElement("td");
+      const v = computeCell(cell);
+      td.textContent = (v ?? "");
+      if (typeof cell === "object" && v) td.classList.add("ok");
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+  tbl.appendChild(tb);
+}
+
+function renderButtons() {
+  const box = document.getElementById("weekButtons");
+  box.innerHTML = "";
+  const count = Math.max(15, WEEKS.length || 0);
+
+  for (let i=0; i<count; i++) {
+    const b = document.createElement("button");
+    b.textContent = "Settimana " + (i+1);
+    if (i === selectedWeek) b.classList.add("primary");
+    b.addEventListener("click", () => {
+      selectedWeek = i;
+      renderButtons();
+      renderOutput();
+      document.getElementById("status").textContent = "Settimana attiva: " + (selectedWeek + 1);
+    });
+    box.appendChild(b);
+  }
+}
+
+renderButtons();
+renderOutput();
+document.getElementById("status").textContent = "Settimana attiva: 1";
+</script>
+</body>
+</html>
