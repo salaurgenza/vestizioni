@@ -1,158 +1,512 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planning Vestizioni — settimane (offline)</title>
-  <style>
-    :root {
-      --bg:#0b0e14; --card:#121826; --text:#e6eaf2; --muted:#9aa4b2; --line:#273041; --accent:#6ea8fe;
-      --ok:#2bd576; --bad:#ff6b6b;
-    }
-    @media (prefers-color-scheme: light) {
-      :root { --bg:#f6f7fb; --card:#ffffff; --text:#111827; --muted:#6b7280; --line:#e5e7eb; --accent:#2563eb; }
-    }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--text); }
-    .wrap { max-width: 1280px; margin: 0 auto; padding: 16px; }
-    .bar { position: sticky; top: 0; z-index: 20; background: rgba(0,0,0,0); backdrop-filter: blur(10px); padding: 10px 0; }
-    .btns { display:flex; flex-wrap:wrap; gap:8px; }
-    button {
-      border:1px solid var(--line); background: transparent; color: var(--text);
-      padding: 8px 10px; border-radius: 12px; cursor:pointer; font-size: 13px;
-    }
-    button.primary { background: var(--accent); border-color: transparent; color:white; }
-    .card { background: var(--card); border:1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,12); }
-    .mini { font-size: 12px; color: var(--muted); line-height:1.35; }
-    table { border-collapse: collapse; width: 100%; overflow: hidden; border-radius: 12px; border: 1px solid var(--line); }
-    th, td { border:1px solid var(--line); padding: 7px 8px; font-size: 13px; vertical-align: top; }
-    th { background: rgba(110,168,254,12); text-align:left; }
-    .ok { color: var(--ok); }
-    .error { color: var(--bad); }
-    .row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content: space-between; }
-    .title { font-size: 14px; font-weight: 600; }
-  </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planning Vestizioni — replica Excel (offline)</title>
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --card: #121826;
+            --text: #e6eaf2;
+            --muted: #9aa4b2;
+            --line: #273041;
+            --accent: #6ea8fe;
+            --ok: #2bd576;
+            --bad: #ff6b6b;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg: #f6f7fb;
+                --card: #ffffff;
+                --text: #111827;
+                --muted: #6b7280;
+                --line: #e5e7eb;
+                --accent: #2563eb;
+            }
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(0,0,0,0);
+            backdrop-filter: blur(10px);
+            padding: 10px 0;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .mini {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        .btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+            button.primary {
+                background: var(--accent);
+                border-color: transparent;
+                color: #fff;
+            }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,12);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+        }
+
+        th, td {
+            border: 1px solid var(--line);
+            padding: 7px 8px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+            td.ok {
+                color: var(--ok);
+                font-weight: 600;
+            }
+
+        .error {
+            color: var(--bad);
+        }
+
+        .tool {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 90px;
+            resize: vertical;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--text);
+            padding: 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="bar">
-      <div class="row">
-        <div class="title">Seleziona settimana</div>
-        <div class="mini" id="status">Pronto.</div>
-      </div>
-      <div class="btns" id="weekButtons"></div>
+    <div class="wrap">
+        <div class="bar">
+            <div class="row">
+                <div class="title">Seleziona settimana</div>
+                <div class="mini" id="status">Pronto.</div>
+            </div>
+            <div class="btns" id="weekButtons"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+            <div class="mini" style="margin-bottom:10px;">
+                Replica Excel: matrice settimana (V2:AB16) → helper (V22:AB49) → planning (A29:L57).<br />
+                In più: OSS da tabella 5×(5 settimane×7 giorni) + nomi fissi da STATIC_MAP (ST2/FS2/RR…).
+            </div>
+
+            <div class="tool" style="margin-bottom:10px;">
+                <div style="flex:1 1 520px;">
+                    <div class="mini" style="margin-bottom:6px;">(Opzionale) Incolla una settimana 15x7 (TSV) per test rapido:</div>
+                    <textarea id="pasteBox" placeholder="15 righe, 7 colonne. Separatore: TAB."></textarea>
+                </div>
+                <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:8px; margin-top:20px;">
+                    <button id="btnUsePaste">Usa incolla</button>
+                    <button id="btnResetWeek">Torna alla settimana selezionata</button>
+                </div>
+            </div>
+
+            <div style="overflow:auto;">
+                <table id="outTable"></table>
+            </div>
+        </div>
     </div>
 
-    <div class="card" style="margin-top:12px;">
-      <div class="mini" style="margin-bottom:8px;">
-        Clicca una settimana: il planning (Foglio4) si aggiorna subito.
-      </div>
-      <div style="overflow:auto;">
-        <table id="outTable"></table>
-      </div>
-    </div>
-  </div>
+    <script>/* ============================
+   ✅ DATI BASE
+   ============================ */
 
-<script>
-window.addEventListener('error', (e) => {
-  const st = document.getElementById('status');
-  if (st) st.innerHTML = '<span class="error">Errore JS: ' + (e.message || 'unknown') + '</span>';
-});
+const ASSIGNEES = [
+  "TODINI","MANGANO","RAIA","RODELLI","PEPE","SEBASTIANI","ZAGORDI","SANNA","LOPARDO","LANCIANESE",
+  "PROCIA","BELLU","SALVATORE","CONTE","DI MARCANTONIO"
+];
 
-// ✅ MODEL completo (template Foglio4 + mapping colonne)
-const MODEL = {"assignees": ["EUFEMI", "MANGANO", "RAIA", "RODELLI", "PEPE", "SEBASTIANI", "ZAGORDI", "PROCIA", "ZACCARDINI", "LANCIANESE", "SANNA", "BELLU", "SACCONE", "CONTE", "DI MARCANTONIO"], "template": [["LUN", "GMC1", "GMC2                                   NEMO", "GMC 3                                              DERMO", "SALA A", "SALA B ", "RR GMC", "OSS", "RR 3B", "OSS", "ECCEZ", "REP"], ["M", {"ref": "V23", "type": "pasted", "code": "M14 1"}, {"ref": "V38", "type": "static", "code": "ST2"}, null, {"ref": "V30", "type": "pasted", "code": "M9* 1a-"}, {"ref": "V35", "type": "pasted", "code": "M5 2b-"}, {"ref": "V26", "type": "pasted", "code": "M5° R1"}, {"ref": "V48", "type": "static", "code": "M5 2S"}, {"ref": "V33", "type": "pasted", "code": "M5 R2"}, {"ref": "V47", "type": "static", "code": "M5 F3"}, {"ref": "V27", "type": "pasted", "code": "SOST-"}, {"ref": "V26", "type": "pasted", "code": "M5° R1"}], ["M", {"ref": "V22", "type": "pasted", "code": "M14 1-"}, {"ref": "V37", "type": "static", "code": "FS2"}, null, {"ref": "V29", "type": "pasted", "code": "M9* 1a"}, {"ref": "V25", "type": "pasted", "code": "M5 2b"}, {"ref": "V39", "type": "static", "code": "RR"}, null, {"ref": "V49", "type": "static", "code": "M5 RR"}, null, {"ref": "V31", "type": "pasted", "code": "SOST"}, null], ["P", null, null, null, {"ref": "V24", "type": "pasted", "code": "p5 1a"}, {"ref": "V28", "type": "pasted", "code": "P5 2b"}, null, null, {"ref": "V32", "type": "pasted", "code": "P6 R2"}, {"ref": "V45", "type": "static", "code": "P6 F3"}, null, null], ["P", null, null, null, {"ref": "V36", "type": "pasted", "code": "P6 1a"}, {"ref": "V34", "type": "other", "code": "P6 2B"}, null, null, {"ref": "V46", "type": "static", "code": "P6 RR"}, null, null, null], ["MART", "GMC1", "GMC2                                   NEFRO", "GMC 3                                              DERMO", "SALA A", "SALA B ", "RR GMC", "OSS", "RR 3B", "OSS", "ECCEZ", "REP"], ["M", {"ref": "W35", "type": "pasted", "code": "M14 1-"}, {"ref": "W37", "type": "other", "code": "ST2"}, {"ref": "W39", "type": "other", "code": "ST3"}, "=W29", {"ref": "W22", "type": "pasted", "code": "M5 2b-"}, {"ref": "W36", "type": "other", "code": "M9 R1"}, {"ref": "W48", "type": "other", "code": "M5 2S"}, {"ref": "W26", "type": "pasted", "code": "M5° R2"}, {"ref": "W47", "type": "other", "code": "M5 F3"}, {"ref": "W27", "type": "pasted", "code": "SOST-"}, {"ref": "W26", "type": "pasted", "code": "M5° R2"}], ["M", {"ref": "W23", "type": "pasted", "code": "M14 1"}, {"ref": "W38", "type": "other", "code": "FS2"}, {"ref": "W40", "type": "other", "code": "FS3"}, {"ref": "W30", "type": "pasted", "code": "M9* 1a"}, {"ref": "W25", "type": "pasted", "code": "M5* 2b"}, null, null, {"ref": "W49", "type": "other", "code": "M5 RR"}, null, {"ref": "W31", "type": "pasted", "code": "SOST"}, null], ["P", null, null, null, {"ref": "W24", "type": "pasted", "code": "p5 1a-"}, {"ref": "W28", "type": "pasted", "code": "P5 2b"}, null, null, {"ref": "W32", "type": "pasted", "code": "P6 R2"}, {"ref": "W45", "type": "other", "code": "P6 F3"}, null, null], ["P", null, null, null, {"ref": "W33", "type": "pasted", "code": "p5 1a"}, {"ref": "W34", "type": "other", "code": "P5 2B-"}, null, null, {"ref": "W46", "type": "other", "code": "P6 RR"}, null, null, null], ["MERC", "GMC1", "GMC2                                   T. DOLORE", "GMC 3                                              DERMO", "SALA A", "SALA B ", "RR GMC", "OSS", "RR 3B", "OSS", "ECCEZ", "REP"], ["M", {"ref": "X23", "type": "pasted", "code": "M14 1-"}, {"ref": "X39", "type": "other", "code": "ST2"}, {"ref": "X38", "type": "other", "code": "ST3"}, {"ref": "X30", "type": "pasted", "code": "M9 1a"}, {"ref": "X25", "type": "pasted", "code": "M5° 2b"}, "=X26", {"ref": "X48", "type": "other", "code": "M5 2S"}, {"ref": "X33", "type": "pasted", "code": "M5 R2"}, {"ref": "X47", "type": "other", "code": "M5 F3"}, {"ref": "X27", "type": "pasted", "code": "SOST-"}, {"ref": "X25", "type": "pasted", "code": "M5° 2b"}], ["M", {"ref": "X35", "type": "pasted", "code": "M14 1"}, {"ref": "X40", "type": "other", "code": "FS2"}, {"ref": "X37", "type": "other", "code": "FS3"}, {"ref": "X29", "type": "pasted", "code": "M9* 1a-"}, {"ref": "X22", "type": "pasted", "code": "M9* 2b"}, null, null, {"ref": "X49", "type": "other", "code": "M5 RR"}, null, {"ref": "X31", "type": "pasted", "code": "SOST"}, null], ["P", null, null, null, {"ref": "X24", "type": "pasted", "code": "p5 1a"}, {"ref": "X28", "type": "pasted", "code": "P5 2b"}, null, null, {"ref": "X32", "type": "pasted", "code": "P6 R2"}, {"ref": "X45", "type": "other", "code": "P6 F3"}, null, null], ["P", null, null, null, {"ref": "X36", "type": "pasted", "code": "P6 1A"}, {"ref": "X34", "type": "pasted", "code": "P6 2B"}, null, null, {"ref": "X46", "type": "other", "code": "P6 RR"}, null, null, null], ["GIOV", "GMC1", "GMC2                      PLASTICA", "GMC 3                                              DERMO", "SALA A", "SALA B ", "RR GMC", "OSS", "RR 3B", "OSS", "ECCEZ", "REP"], ["M", {"ref": "Y22", "type": "pasted", "code": "M14 1-"}, {"ref": "Y38", "type": "other", "code": "ST2"}, {"ref": "Y40", "type": "other", "code": "ST3"}, {"ref": "Y29", "type": "pasted", "code": "M5 1a-"}, {"ref": "Y35", "type": "pasted", "code": "M5* 2b-"}, {"ref": "Y26", "type": "pasted", "code": "M9° R1"}, {"ref": "Y48", "type": "other", "code": "M5 2S"}, {"ref": "Y33", "type": "pasted", "code": "M5 R2"}, {"ref": "Y47", "type": "other", "code": "M5 F3"}, {"ref": "Y27", "type": "pasted", "code": "SOST-"}, {"ref": "Y26", "type": "pasted", "code": "M9° R1"}], ["M", {"ref": "Y23", "type": "pasted", "code": "M14 1"}, {"ref": "Y37", "type": "other", "code": "FS2"}, {"ref": "Y39", "type": "other", "code": "FS3"}, {"ref": "Y30", "type": "pasted", "code": "M9 1a"}, {"ref": "Y25", "type": "pasted", "code": "M5* 2b"}, null, null, {"ref": "Y49", "type": "other", "code": "M5 RR"}, null, {"ref": "Y31", "type": "pasted", "code": "SOST"}, null], ["P", null, null, null, {"ref": "Y36", "type": "pasted", "code": "p5 1a-"}, {"ref": "Y28", "type": "pasted", "code": "P5 2b-"}, null, null, {"ref": "Y32", "type": "pasted", "code": "P6 R2"}, {"ref": "Y45", "type": "other", "code": "P6 F3"}, null, null], ["P", null, null, null, {"ref": "Y24", "type": "pasted", "code": "p5 1a"}, {"ref": "Y34", "type": "other", "code": "P5 2B"}, null, null, {"ref": "Y46", "type": "other", "code": "P6 RR"}, null, null, null], ["VEN", "GMC1", "GMC2                      PLASTICA", "GMC 3                                              DERMO", "SALA A", "SALA B ", "RR GMC", "OSS", "RR 3B", "OSS", "ECCEZ", "REP"], ["M", {"ref": "Z35", "type": "pasted", "code": "M14 1-"}, {"ref": "Z38", "type": "other", "code": "ST2"}, {"ref": "Z40", "type": "other", "code": "ST3"}, {"ref": "Z29", "type": "pasted", "code": "M9* 1a-"}, {"ref": "Z22", "type": "pasted", "code": "M5* 2b"}, {"ref": "Z26", "type": "pasted", "code": "M9 R1"}, {"ref": "Z48", "type": "other", "code": "M5 2S"}, {"ref": "Z33", "type": "pasted", "code": "M5 R2"}, {"ref": "Z47", "type": "other", "code": "M5 F3"}, {"ref": "Z27", "type": "pasted", "code": "SOST-"}, {"ref": "Z25", "type": "pasted", "code": "M9° 2b"}], ["M", {"ref": "Z23", "type": "pasted", "code": "M14 1"}, {"ref": "Z37", "type": "other", "code": "FS2"}, {"ref": "Z39", "type": "other", "code": "FS3"}, {"ref": "Z30", "type": "pasted", "code": "M9 1a"}, {"ref": "Z25", "type": "pasted", "code": "M9° 2b"}, null, null, {"ref": "Z49", "type": "other", "code": "M5 RR"}, null, {"ref": "Z31", "type": "pasted", "code": "SOST"}, null], ["P", null, null, null, {"ref": "Z24", "type": "pasted", "code": "p5 1a-"}, {"ref": "Z28", "type": "pasted", "code": "P5 2b-"}, null, null, {"ref": "Z32", "type": "pasted", "code": "P6 R2"}, {"ref": "Z45", "type": "other", "code": "P6 F3"}, null, null], ["P", null, null, null, {"ref": "Z36", "type": "pasted", "code": "p6 1a"}, {"ref": "Z34", "type": "other", "code": "P5 2B"}, null, null, {"ref": "Z46", "type": "other", "code": "P6 RR"}, null, null, null], ["SAB", null, null, null, null, null, null, null, null, null, null, "REP"], [null, null, null, null, null, null, null, null, null, null, null, {"ref": "AA22", "type": "pasted", "code": "R°"}], ["DOM", null, null, null, null, null, null, null, null, null, null, "REP"], [null, null, null, null, null, null, null, null, null, null, null, {"ref": "AB22", "type": "pasted", "code": "R°"}]], "staticMap": {"RR": "SANTOLAMAZZA", "ST2": "SIMION", "FS2": "TAGLIAFERRI", "P6 F3": "bolognesi", "M5 F3": "menniti", "M5 RR": "ferranti"}, "dayCols": ["V", "W", "X", "Y", "Z", "AA", "AB"], "dayNames": ["LUN", "MART", "MERC", "GIOV", "VEN", "SAB", "DOM"], "defaultWeek": [["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"]]};
+// ✅ Nomi fissi (Excel: ST2, FS2, RR ecc.)
+const STATIC_MAP = {
+  "ST2": "SIMION",
+  "FS2": "TAGLIAFERRI",
+    "FS3": "SANTOLAMAZZA",
+    "ST3": "MOFFA"
+  // se hai altri codici fissi, aggiungili qui:
+  // "ST3":"MOFFA",
+  // "FS3":"MOFFA",
+};
 
-// ✅ OFFLINE: settimane embedded (niente fetch / niente CORS)
-const WEEKS = [{"id": 1, "label": "Settimana 1 (4–10)", "days": [4, 5, 6, 7, 8, 9, 10], "matrix": [["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"]]}, {"id": 2, "label": "Settimana 2 (11–17)", "days": [11, 12, 13, 14, 15, 16, 17], "matrix": [["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"]]}, {"id": 3, "label": "Settimana 3 (18–24)", "days": [18, 19, 20, 21, 22, 23, 24], "matrix": [["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"]]}, {"id": 4, "label": "Settimana 4 (25–1)", "days": [25, 26, 27, 28, 29, 30, 1], "matrix": [["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"]]}, {"id": 5, "label": "Settimana 5 (2–8)", "days": [2, 3, 4, 5, 6, 7, 8], "matrix": [["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"]]}, {"id": 6, "label": "Settimana 6 (9–15)", "days": [9, 10, 11, 12, 13, 14, 15], "matrix": [["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"]]}, {"id": 7, "label": "Settimana 7 (16–22)", "days": [16, 17, 18, 19, 20, 21, 22], "matrix": [["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"]]}, {"id": 8, "label": "Settimana 8 (23–29)", "days": [23, 24, 25, 26, 27, 28, 29], "matrix": [["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"]]}, {"id": 9, "label": "Settimana 9 (30–5)", "days": [30, 31, 1, 2, 3, 4, 5], "matrix": [["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"]]}, {"id": 10, "label": "Settimana 10 (6–12)", "days": [6, 7, 8, 9, 10, 11, 12], "matrix": [["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"]]}, {"id": 11, "label": "Settimana 11 (13–19)", "days": [13, 14, 15, 16, 17, 18, 19], "matrix": [["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"]]}, {"id": 12, "label": "Settimana 12 (20–26)", "days": [20, 21, 22, 23, 24, 25, 26], "matrix": [["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"]]}, {"id": 13, "label": "Settimana 13 (27–3)", "days": [27, 28, 29, 30, 1, 2, 3], "matrix": [["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"]]}, {"id": 14, "label": "Settimana 14 (4–10)", "days": [4, 5, 6, 7, 8, 9, 10], "matrix": [["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"]]}, {"id": 15, "label": "Settimana 15 (11–17)", "days": [11, 12, 13, 14, 15, 16, 17], "matrix": [["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"]]}];
+// ✅ OSS: 5 persone
+const OSS_NAMES = ["BOLOGNESI","MARZIALETTI","MENNITI","PALLOCCA","FERRANTI"];
 
-const ASSIGNEES = (Array.isArray(MODEL.assignees) && MODEL.assignees.length === 15)
-  ? MODEL.assignees
-  : Array.from({length:15}, (_,i)=>"Persona "+(i+1));
+// ✅ OSS: righe incollate da Excel (ognuna = 35 codici = 5 settimane×7 giorni)
+const OSS_RAW_LINES = [
+`M5 F3	M5 RR	M5 2S	P6 RR	P6 F3	R	R	P6 RR	M34 F3	M5 RR	M5 2S	M5 2S	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	P6 F3	M34 F3	M5 RR	M5 2S	M5 2S	R	R`,
+`M5 2S	P6 RR	P6 F3	M34 F3	M5 RR	R	R	M5 F3	M5 RR	M5 2S	P6 RR	P6 F3	R	R	P6 RR	M34 F3	M5 RR	M5 2S	M5 2S	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	M5 F3	M5 RR	M5 2S	P6 RR	P6 F3	R	R`,
+`P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	M5 2S	P6 RR	P6 F3	M34 F3	M5 RR	R	R	M5 F3	M5 RR	M5 2S	P6 RR	P6 F3	R	R	P6 RR	M34 F3	M5 RR	M5 2S	M5 2S	R	R	M5 2S	P6 RR	P6 F3	M34 F3	M5 RR	R	R`,
+`P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	M5 2S	P6 RR	P6 F3	M34 F3	M5 RR	R	R	M5 F3	M5 RR	M5 2S	P6 RR	P6 F3	R	R	M5 RR	M5 2S	P6 RR	P6 F3	M5 F3	R	R`,
+`P6 RR	M34 F3	M5 RR	M5 2S	M5 2S	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R	M5 2S	P6 RR	P6 F3	M34 F3	M5 RR	R	R	P6 F3	P6 F3	M5 F3	M5 RR	P6 RR	R	R`
+];
+
+// ✅ Helper defs = “celle formula” V22:AB49 (uguali al messaggio precedente)
+const HELPER_DEFS = {
+  "V22":{"dayCol":"V","code":"M14 1"},"W22":{"dayCol":"W","code":"M14 1-"},"X22":{"dayCol":"X","code":"M5° R2"},"Y22":{"dayCol":"Y","code":"M14 1-"},"Z22":{"dayCol":"Z","code":"M5* 2b"},"AA22":{"dayCol":"AA","code":"R°"},"AB22":{"dayCol":"AB","code":"R°"},
+  "V23":{"dayCol":"V","code":"M14 1-"},"W23":{"dayCol":"W","code":"M14 1"},"X23":{"dayCol":"X","code":"M14 1-"},"Y23":{"dayCol":"Y","code":"M14 1"},"Z23":{"dayCol":"Z","code":"M14 1"},"AA23":{"dayCol":"AA","code":"R"},"AB23":{"dayCol":"AB","code":"R"},
+  "V24":{"dayCol":"V","code":"p5 1a"},"W24":{"dayCol":"W","code":"p5 1a-"},"X24":{"dayCol":"X","code":"p5 1a"},"Y24":{"dayCol":"Y","code":"p5 1a"},"Z24":{"dayCol":"Z","code":"p5 1a-"},
+  "V25":{"dayCol":"V","code":"M5 2b"},"W25":{"dayCol":"W","code":"M5* 2b"},"X25":{"dayCol":"X","code":"M5° 2b"},"Y25":{"dayCol":"Y","code":"M5* 2b"},"Z25":{"dayCol":"Z","code":"M9° 2b"},
+  "V26":{"dayCol":"V","code":"M5° R1"},"W26":{"dayCol":"W","code":"M5° R2"},"X26":{"dayCol":"X","code":"AUTO"},"Y26":{"dayCol":"Y","code":"M9° R1"},"Z26":{"dayCol":"Z","code":"M9 R1"},
+  "V27":{"dayCol":"V","code":"SOST"},"W27":{"dayCol":"W","code":"SOST-"},"X27":{"dayCol":"X","code":"SOST-"},"Y27":{"dayCol":"Y","code":"SOST-"},"Z27":{"dayCol":"Z","code":"SOST-"},
+  "V28":{"dayCol":"V","code":"P5 2b"},"W28":{"dayCol":"W","code":"P5 2b"},"X28":{"dayCol":"X","code":"P5 2b"},"Y28":{"dayCol":"Y","code":"P5 2b-"},"Z28":{"dayCol":"Z","code":"P5 2b-"},
+  "V29":{"dayCol":"V","code":"M9* 1a-"},"W29":{"dayCol":"W","code":"M9* 1a"},"X29":{"dayCol":"X","code":"M9* 1a-"},"Y29":{"dayCol":"Y","code":"M5 1a-"},"Z29":{"dayCol":"Z","code":"M9* 1a-"},
+  "V30":{"dayCol":"V","code":"M9* 1a"},"W30":{"dayCol":"W","code":"M9* 1a"},"X30":{"dayCol":"X","code":"M9 1a"},"Y30":{"dayCol":"Y","code":"M9 1a"},"Z30":{"dayCol":"Z","code":"M9 1a"},
+  "V31":{"dayCol":"V","code":"SOST-"},"W31":{"dayCol":"W","code":"SOST"},"X31":{"dayCol":"X","code":"SOST"},"Y31":{"dayCol":"Y","code":"SOST"},"Z31":{"dayCol":"Z","code":"SOST"},
+  "V32":{"dayCol":"V","code":"P6 R2"},"W32":{"dayCol":"W","code":"P6 R2"},"X32":{"dayCol":"X","code":"P6 R2"},"Y32":{"dayCol":"Y","code":"P6 R2"},"Z32":{"dayCol":"Z","code":"P6 R2"},
+  "V33":{"dayCol":"V","code":"M5 R2"},"W33":{"dayCol":"W","code":"p5 1a"},"X33":{"dayCol":"X","code":"M5 R2"},"Y33":{"dayCol":"Y","code":"M5 R2"},"Z33":{"dayCol":"Z","code":"M5 R2"},
+  "V34":{"dayCol":"V","code":"P6 2B"},"W34":{"dayCol":"W","code":"P5 2B-"},"X34":{"dayCol":"X","code":"P6 2B"},"Y34":{"dayCol":"Y","code":"P5 2B"},"Z34":{"dayCol":"Z","code":"P5 2B"},
+  "V35":{"dayCol":"V","code":"M5 2b-"},"W35":{"dayCol":"W","code":"M14 1-"},"X35":{"dayCol":"X","code":"M14 1"},"Y35":{"dayCol":"Y","code":"M5* 2b-"},"Z35":{"dayCol":"Z","code":"M14 1-"},
+  "V36":{"dayCol":"V","code":"P6 1a"},"W36":{"dayCol":"W","code":"M9 R1"},"X36":{"dayCol":"X","code":"P6 1A"},"Y36":{"dayCol":"Y","code":"p5 1a-"},"Z36":{"dayCol":"Z","code":"p6 1a"},
+  "V37":{"dayCol":"V","code":"FS2"},"W37":{"dayCol":"W","code":"ST2"},"X37":{"dayCol":"X","code":"FS3"},"Y37":{"dayCol":"Y","code":"FS2"},"Z37":{"dayCol":"Z","code":"FS2"},
+  "V38":{"dayCol":"V","code":"ST2"},"W38":{"dayCol":"W","code":"FS2"},"X38":{"dayCol":"X","code":"ST3"},"Y38":{"dayCol":"Y","code":"ST2"},"Z38":{"dayCol":"Z","code":"ST2"},
+  "V39":{"dayCol":"V","code":"RR"},"W39":{"dayCol":"W","code":"ST3"},"X39":{"dayCol":"X","code":"ST2"},"Y39":{"dayCol":"Y","code":"FS3"},"Z39":{"dayCol":"Z","code":"FS3"},
+  "V40":{"dayCol":"V","code":"FS2"},"W40":{"dayCol":"W","code":"FS3"},"X40":{"dayCol":"X","code":"FS2"},"Y40":{"dayCol":"Y","code":"ST3"},"Z40":{"dayCol":"Z","code":"ST3"},
+  "V45":{"dayCol":"V","code":"P6 F3"},"W45":{"dayCol":"W","code":"P6 F3"},"X45":{"dayCol":"X","code":"P6 F3"},"Y45":{"dayCol":"Y","code":"P6 F3"},"Z45":{"dayCol":"Z","code":"P6 F3"},
+  "V46":{"dayCol":"V","code":"P6 RR"},"W46":{"dayCol":"W","code":"P6 RR"},"X46":{"dayCol":"X","code":"P6 RR"},"Y46":{"dayCol":"Y","code":"P6 RR"},"Z46":{"dayCol":"Z","code":"P6 RR"},
+  "V47":{"dayCol":"V","code":"M5 F3"},"W47":{"dayCol":"W","code":"M5 F3"},"X47":{"dayCol":"X","code":"M5 F3"},"Y47":{"dayCol":"Y","code":"M5 F3"},"Z47":{"dayCol":"Z","code":"M5 F3"},
+  "V48":{"dayCol":"V","code":"M5 2S"},"W48":{"dayCol":"W","code":"M5 2S"},"X48":{"dayCol":"X","code":"M5 2S"},"Y48":{"dayCol":"Y","code":"M5 2S"},"Z48":{"dayCol":"Z","code":"M5 2S"},
+  "V49":{"dayCol":"V","code":"M5 RR"},"W49":{"dayCol":"W","code":"M5 RR"},"X49":{"dayCol":"X","code":"M5 RR"},"Y49":{"dayCol":"Y","code":"M5 RR"},"Z49":{"dayCol":"Z","code":"M5 RR"}
+};
+
+const PLANNING_TEMPLATE = [
+  ["LUN","GMC1","GMC2                                   NEMO","GMC 3                                              DERMO","SALA A","SALA B ","RR GMC","OSS","RR 3B","OSS","ECCEZ","REP"],
+  ["M","=+V23","=+V38",null,"=+V30","=+V35","=+V26","=+V48","=+V33","=+V47","=+V27","=+V26"],
+  ["M","=+V22","=+V37",null,"=+V29","=+V25","=+V39",null,"=+V49",null,"=+V31",null],
+  ["P",null,null,null,"=+V24","=+V28",null,null,"=+V32","=+V45",null,null],
+  ["P",null,null,null,"=+V36","=+V34",null,null,"=+V46",null,null,null],
+
+  ["MART","GMC1","GMC2                                   NEFRO","GMC 3                                              DERMO","SALA A","SALA B ","RR GMC","OSS","RR 3B","OSS","ECCEZ","REP"],
+  ["M","=+W35","=+W37","=+W39","=+W29","=+W22","=+W36","=+W48","=+W26","=+W47","=+W27","=+W26"],
+  ["M","=+W23","=+W38","=+W40","=+W30","=+W25",null,null,"=+W49",null,"=+W31",null],
+  ["P",null,null,null,"=+W24","=+W28",null,null,"=+W32","=+W45",null,null],
+  ["P",null,null,null,"=+W33","=+W34",null,null,"=+W46",null,null,null],
+
+  ["MERC","GMC1","GMC2                                   T. DOLORE","GMC 3                                              DERMO","SALA A","SALA B ","RR GMC","OSS","RR 3B","OSS","ECCEZ","REP"],
+  ["M","=+X23","=+X39","=+X38","=+X30","=+X25","=+X26","=+X48","=+X33","=+X47","=+X27","=+X25"],
+  ["M","=+X35","=+X40","=+X37","=+X29","=+X22",null,null,"=+X49",null,"=+X31",null],
+  ["P",null,null,null,"=+X24","=+X28",null,null,"=+X32","=+X45",null,null],
+  ["P",null,null,null,"=+X36","=+X34",null,null,"=+X46",null,null,null],
+
+  ["GIOV","GMC1","GMC2                      PLASTICA","GMC 3                                              DERMO","SALA A","SALA B ","RR GMC","OSS","RR 3B","OSS","ECCEZ","REP"],
+  ["M","=+Y22","=+Y38","=+Y40","=+Y29","=+Y35","=+Y26","=+Y48","=+Y33","=+Y47","=+Y27","=+Y26"],
+  ["M","=+Y23","=+Y37","=+Y39","=+Y30","=+Y25",null,null,"=+Y49",null,"=+Y31",null],
+  ["P",null,null,null,"=+Y36","=+Y28",null,null,"=+Y32","=+Y45",null,null],
+  ["P",null,null,null,"=+Y24","=+Y34",null,null,"=+Y46",null,null,null],
+
+  ["VEN","GMC1","GMC2                      PLASTICA","GMC 3                                              DERMO","SALA A","SALA B ","RR GMC","OSS","RR 3B","OSS","ECCEZ","REP"],
+  ["M","=+Z35","=+Z38","=+Z40","=+Z29","=+Z22","=+Z26","=+Z48","=+Z33","=+Z47","=+Z27","=+Z25"],
+  ["M","=+Z23","=+Z37","=+Z39","=+Z30","=+Z25",null,null,"=+Z49",null,"=+Z31",null],
+  ["P",null,null,null,"=+Z24","=+Z28",null,null,"=+Z32","=+Z45",null,null],
+  ["P",null,null,null,"=+Z36","=+Z34",null,null,"=+Z46",null,null,null],
+
+  ["SAB",null,null,null,null,null,null,null,null,null,null,"REP"],
+  [null,null,null,null,null,null,null,null,null,null,null,"=+AA22"],
+  ["DOM",null,null,null,null,null,null,null,null,null,null,"REP"],
+  [null,null,null,null,null,null,null,null,null,null,null,"=+AB22"]
+];
+
+// ✅ WEEKS: incolla il tuo array completo settimane qui
+        const WEEKS = [{ "id": 1, "label": "Settimana 1 (4–10)", "days": [4, 5, 6, 7, 8, 9, 10], "matrix": [["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"]] }, { "id": 2, "label": "Settimana 2 (11–17)", "days": [11, 12, 13, 14, 15, 16, 17], "matrix": [["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"]] }, { "id": 3, "label": "Settimana 3 (18–24)", "days": [18, 19, 20, 21, 22, 23, 24], "matrix": [["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"]] }, { "id": 4, "label": "Settimana 4 (25–1)", "days": [25, 26, 27, 28, 29, 30, 1], "matrix": [["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"]] }, { "id": 5, "label": "Settimana 5 (2–8)", "days": [2, 3, 4, 5, 6, 7, 8], "matrix": [["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"]] }, { "id": 6, "label": "Settimana 6 (9–15)", "days": [9, 10, 11, 12, 13, 14, 15], "matrix": [["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"]] }, { "id": 7, "label": "Settimana 7 (16–22)", "days": [16, 17, 18, 19, 20, 21, 22], "matrix": [["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"]] }, { "id": 8, "label": "Settimana 8 (23–29)", "days": [23, 24, 25, 26, 27, 28, 29], "matrix": [["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"]] }, { "id": 9, "label": "Settimana 9 (30–5)", "days": [30, 31, 1, 2, 3, 4, 5], "matrix": [["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"]] }, { "id": 10, "label": "Settimana 10 (6–12)", "days": [6, 7, 8, 9, 10, 11, 12], "matrix": [["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"]] }, { "id": 11, "label": "Settimana 11 (13–19)", "days": [13, 14, 15, 16, 17, 18, 19], "matrix": [["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"]] }, { "id": 12, "label": "Settimana 12 (20–26)", "days": [20, 21, 22, 23, 24, 25, 26], "matrix": [["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"]] }, { "id": 13, "label": "Settimana 13 (27–3)", "days": [27, 28, 29, 30, 1, 2, 3], "matrix": [["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"]] }, { "id": 14, "label": "Settimana 14 (4–10)", "days": [4, 5, 6, 7, 8, 9, 10], "matrix": [["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"], ["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"]] }, { "id": 15, "label": "Settimana 15 (11–17)", "days": [11, 12, 13, 14, 15, 16, 17], "matrix": [["SOST-", "SOST-", "SOST-", "SOST-", "SOST-", "R", "R"], ["P6 2b", "P5 2b-", "M9 1a", "M5* 2b", "M14 1", "R", "R"], ["M5 2b", "P5 1a", "M9* 1a-", "M5 1a-", "P5 2b-", "R°", "R"], ["M14 1-", "M5° R2", "P6 2b", "P5 1a-", "M9 1a", "R", "R"], ["P5 1a", "M14 1-", "M5 R1", "P5 2b", "M9* 1a-", "R", "R"], ["M5° R1", "P6 R2", "P5 2b", "M9 1a", "M5* 2b", "R", "R"], ["M5 2b-", "M9* 1a", "M5° 2b", "P6 R2", "P5 1a-", "R", "R"], ["SOST", "SOST", "SOST", "SOST", "SOST", "R", "R"], ["P6 1a", "P5 2b", "M9* 2b", "M14 1-", "M5 R2", "R", "R"], ["P5 2b", "M9 1a-", "M14 1", "M5* 2b-", "P6 1a", "R", "R"], ["M14 1", "M5* 2b", "P6 1a", "P5 2b-", "M9° 2b", "R", "R"], ["M9* 1a", "M5 2b-", "P6 R2", "P5 1a", "M14 1-", "R", "R"], ["M9* 1a-", "M14 1", "P5 1a", "M14 1", "P6 R2", "R", "R°"], ["P6 R2", "P5 1a-", "M14 1-", "M5 R2", "M9 R1", "R", "R"], ["M5 R2", "M9 R1", "M5 R2", "M9° R1", "P5 2b", "R", "R"]] }];
+
+
+
+/* ============================
+   ✅ FUNZIONI
+   ============================ */
 
 let selectedWeek = 0;
+let pastedOverrideMatrix = null;
 
-function norm(s) {
-  return (s ?? "").toString().trim().replace(/\s+/g, " ").toUpperCase();
+        function norm(x) {
+            let s = (x ?? "")
+                .toString()
+                .replace(/\u00A0/g, " ")     // NBSP -> spazio normale
+                .trim()
+                .replace(/\s+/g, " ")
+                .toUpperCase()
+                .replace(/º/g, "°");         // º -> °
+
+            // 1) Inserisce spazio tra "M9*" e "2B" quando manca: "M9*2B" -> "M9* 2B"
+            // Vale anche per: M14 1-, P6 1A, M5°R2, M5RR, P6F3, M5 2S ecc.
+            s = s.replace(
+                /([A-Z]\d+(?:\*|°)?)(?=(?:1A|2B|R1|R2|RR|F3|2S)\b)/g,
+                "$1 "
+            );
+
+            // 2) Normalizza anche casi tipo "M9* 2B -" -> "M9* 2B-"
+            s = s.replace(/\s+-/g, "-");
+
+            return s;
+        }
+
+
+// Excel: V W X Y Z AA AB -> 0..6
+function dayColToIndex(dayCol){
+  const map = ["V","W","X","Y","Z","AA","AB"];
+  return map.indexOf(dayCol);
 }
 
-function currentWeek() {
-  return (WEEKS[selectedWeek]?.matrix) || Array.from({length:15}, () => Array.from({length:7}, () => ""));
+function getWeekMatrix(){
+  if (pastedOverrideMatrix) return pastedOverrideMatrix;
+  const w = WEEKS[selectedWeek];
+  if (!w || !Array.isArray(w.matrix)) {
+    return Array.from({length:15},()=>Array.from({length:7},()=> ""));
+  }
+  return w.matrix;
 }
 
-function lookupPasted(dayIdx, code) {
+/* ---------- OSS parsing (35 codici -> 5 settimane da 7 giorni) ---------- */
+function buildOssSchedule(){
+  // ossSchedule[ossIndex][ossWeekIndex][dayIndex] = "CODE"
+  const out = [];
+  for (const line of OSS_RAW_LINES){
+    const tokens = line.replace(/\t+/g," ").trim().split(/\s+/);
+
+    // ricostruzione codici giorno:
+    // "R" singolo token; altrimenti 2 token (es: "M5 RR", "M34 F3")
+    const dayCodes = [];
+    for (let i=0;i<tokens.length;i++){
+      const t = tokens[i];
+      if (!t) continue;
+      if (norm(t) === "R"){
+        dayCodes.push("R");
+      } else {
+        const n = tokens[i+1] ?? "";
+        if (n && norm(n) !== "R"){
+          dayCodes.push(`${t} ${n}`.trim());
+          i++;
+        } else {
+          dayCodes.push(t);
+        }
+      }
+    }
+
+    const weeks = [];
+    for (let w=0; w<5; w++){
+      weeks.push(dayCodes.slice(w*7, w*7+7));
+    }
+    out.push(weeks);
+  }
+  return out;
+}
+
+const OSS_SCHEDULE = buildOssSchedule();
+
+function isOssCode(code){
+  // OSS = termina con F3 / RR / 2S (e include M34 F3)
+  const s = norm(code);
+  return /\b(F3|RR|2S)\b$/.test(s);
+}
+
+function lookupOSS(dayIdx, code){
   const target = norm(code);
-  const matrix = currentWeek();
-  for (let r=0; r<15; r++) {
-    if (norm(matrix[r][dayIdx]) === target) {
+  const ossWeekIdx = (selectedWeek % 5); // ciclico su 5 settimane
+  for (let i=0;i<OSS_NAMES.length;i++){
+    const c = OSS_SCHEDULE?.[i]?.[ossWeekIdx]?.[dayIdx] ?? "";
+    if (norm(c) === target) return OSS_NAMES[i];
+  }
+  return "";
+}
+
+/* ---------- VLOOKUP su 15 infermieri ---------- */
+function vlookupNurseName(dayCol, code){
+  const d = dayColToIndex(dayCol);
+  if (d < 0) return "";
+  const target = norm(code);
+  const m = getWeekMatrix();
+  for (let r=0;r<15;r++){
+    if (norm(m?.[r]?.[d] ?? "") === target){
       return (ASSIGNEES[r] ?? "").toString().trim();
     }
   }
   return "";
 }
 
-function lookupStatic(code) {
-  const key = (code ?? "").toString().trim();
-  return (MODEL.staticMap?.[key] ?? "");
-}
+/* ---------- Valore helper = Excel-like ---------- */
+function helperValue(dayCol, code){
+  // 1) prova “VLOOKUP” sugli infermieri
+  const nurse = vlookupNurseName(dayCol, code);
+  if (nurse) return nurse;
 
-function computeCell(cellSpec) {
-  if (!cellSpec || typeof cellSpec !== "object") return cellSpec ?? "";
-  const {ref, type, code} = cellSpec;
-  if (!code) return "";
-  if (type === "pasted") {
-    const col = ref.match(/^([A-Z]+)\d+$/)?.[1] ?? "";
-    const dayIdx = (MODEL.dayCols || []).indexOf(col);
-    if (dayIdx < 0) return "";
-    return lookupPasted(dayIdx, code);
+  // 2) se è codice OSS, usa tabella OSS (serve dayIdx)
+  const dayIdx = dayColToIndex(dayCol);
+  if (dayIdx >= 0 && isOssCode(code)){
+    const oss = lookupOSS(dayIdx, code);
+    if (oss) return oss;
   }
-  if (type === "static") return lookupStatic(code);
-  // "other" -> prova staticMap, altrimenti vuoto
-  return lookupStatic(code) || "";
+
+  // 3) se è un codice statico (ST2/FS2/RR), ritorna da mappa
+  const stat = STATIC_MAP[norm(code)];
+  if (stat) return stat;
+
+  return "";
 }
 
-function renderOutput() {
+function computeHelpers(){
+  const out = {};
+  for (const [coord, def] of Object.entries(HELPER_DEFS)){
+    out[coord] = helperValue(def.dayCol, def.code);
+  }
+  return out;
+}
+
+function resolveTemplateCell(cell, helpers){
+  if (cell == null) return "";
+  if (typeof cell !== "string") return String(cell);
+  if (cell.startsWith("=+")){
+    const ref = cell.slice(2).trim();
+    return helpers[ref] ?? "";
+  }
+  return cell;
+}
+
+function render(){
   const tbl = document.getElementById("outTable");
+  const st  = document.getElementById("status");
+  const helpers = computeHelpers();
+
   tbl.innerHTML = "";
   const tb = document.createElement("tbody");
 
-  for (const row of (MODEL.template || [])) {
+  let filled = 0;
+
+  for (const row of PLANNING_TEMPLATE){
     const tr = document.createElement("tr");
-    for (const cell of row) {
+    for (const cell of row){
       const td = document.createElement("td");
-      const v = computeCell(cell);
-      td.textContent = (v ?? "");
-      if (typeof cell === "object" && v) td.classList.add("ok");
+      const val = resolveTemplateCell(cell, helpers);
+      td.textContent = val;
+
+      if (typeof cell === "string" && cell.startsWith("=+") && val){
+        td.classList.add("ok");
+        filled++;
+      }
       tr.appendChild(td);
     }
     tb.appendChild(tr);
   }
   tbl.appendChild(tb);
 
-  const filled = Array.from(tbl.querySelectorAll("td.ok")).length;
-  const label = WEEKS[selectedWeek]?.label ? " — " + WEEKS[selectedWeek].label : "";
-  document.getElementById("status").innerHTML =
-    "Settimana attiva: <b>" + (selectedWeek + 1) + "</b>" + label + " — celle valorizzate: <b>" + filled + "</b>";
+  const label = WEEKS[selectedWeek]?.label ? (" — " + WEEKS[selectedWeek].label) : "";
+  const src = pastedOverrideMatrix ? " (sorgente: INCOLLA)" : " (sorgente: WEEKS)";
+  st.innerHTML = `Settimana attiva: <b>${selectedWeek+1}</b>${label}${src} — celle valorizzate: <b>${filled}</b>`;
 }
 
-function renderButtons() {
+function renderButtons(){
   const box = document.getElementById("weekButtons");
   box.innerHTML = "";
-
-  // sempre 15 pulsanti
-  for (let i=0; i<15; i++) {
+  for (let i=0;i<15;i++){
     const b = document.createElement("button");
     b.textContent = "Settimana " + (i+1);
-    if (i === selectedWeek) b.classList.add("primary");
-    b.addEventListener("click", () => {
-      selectedWeek = i;
+    if (i===selectedWeek) b.classList.add("primary");
+    b.addEventListener("click", ()=>{
+      selectedWeek=i;
+      pastedOverrideMatrix=null;
       renderButtons();
-      renderOutput();
+      render();
     });
     box.appendChild(b);
   }
 }
 
+function parsePasteBox(text){
+  const rows = text.split(/\r?\n/).map(r=>r.trim()).filter(Boolean);
+  const matrix = rows.map(r=>r.split("\t").map(x=>x.trim()));
+  if (matrix.length !== 15) return null;
+  if (!matrix.every(r=>r.length===7)) return null;
+  return matrix;
+}
+
+window.addEventListener("error", (e)=>{
+  const st = document.getElementById("status");
+  if (st) st.innerHTML = `<span class="error">Errore JS: ${e.message || "unknown"}</span>`;
+});
+
+document.getElementById("btnUsePaste").addEventListener("click", ()=>{
+  const txt = document.getElementById("pasteBox").value || "";
+  const m = parsePasteBox(txt);
+  if (!m){
+    alert("Formato incolla non valido: servono 15 righe e 7 colonne separate da TAB.");
+    return;
+  }
+  pastedOverrideMatrix = m;
+  render();
+});
+
+document.getElementById("btnResetWeek").addEventListener("click", ()=>{
+  pastedOverrideMatrix = null;
+  render();
+});
+
 renderButtons();
-renderOutput();
-</script>
+render();</script>
 </body>
 </html>
