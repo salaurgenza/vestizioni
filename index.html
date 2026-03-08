@@ -292,7 +292,8 @@ let pastedOverrideMatrix = null;
                 .trim()
                 .replace(/\s+/g, " ")
                 .toUpperCase()
-                .replace(/º/g, "°");         // º -> °
+                .replace(/º/g, "°")
+                .replace(/[°*]/g, "");// º -> °
 
             // 1) Inserisce spazio tra "M9*" e "2B" quando manca: "M9*2B" -> "M9* 2B"
             // Vale anche per: M14 1-, P6 1A, M5°R2, M5RR, P6F3, M5 2S ecc.
@@ -377,18 +378,36 @@ function lookupOSS(dayIdx, code){
 }
 
 /* ---------- VLOOKUP su 15 infermieri ---------- */
-function vlookupNurseName(dayCol, code){
-  const d = dayColToIndex(dayCol);
-  if (d < 0) return "";
-  const target = norm(code);
-  const m = getWeekMatrix();
-  for (let r=0;r<15;r++){
-    if (norm(m?.[r]?.[d] ?? "") === target){
-      return (ASSIGNEES[r] ?? "").toString().trim();
-    }
-  }
-  return "";
-}
+        const lookupCache = {};
+
+        function vlookupNurseName(dayCol, code) {
+
+            const d = dayColToIndex(dayCol);
+            if (d < 0) return "";
+
+            const target = norm(code);
+            const m = getWeekMatrix();
+
+            const key = d + "_" + target;
+
+            if (!lookupCache[key]) {
+                lookupCache[key] = [];
+            }
+
+            if (lookupCache[key].length === 0) {
+
+                for (let r = 0; r < 15; r++) {
+                    if (norm(m?.[r]?.[d] ?? "") === target) {
+                        lookupCache[key].push(
+                            (ASSIGNEES[r] ?? "").toString().trim()
+                        );
+                    }
+                }
+
+            }
+
+            return lookupCache[key].shift() ?? "";
+        }
 
 /* ---------- Valore helper = Excel-like ---------- */
 function helperValue(dayCol, code){
